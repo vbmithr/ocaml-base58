@@ -111,6 +111,7 @@ let checksum s =
   Bytes.to_string res
 
 type t = [`Base58 of string]
+type base58 = t
 
 let pp ppf (`Base58 b58) = Format.pp_print_string ppf b58
 
@@ -131,14 +132,79 @@ let to_bytes_exn ?alphabet s =
   | None -> invalid_arg "Base58.safe_decode_exn"
   | Some s -> s
 
-let of_string str =
-  match to_bytes (`Base58 str) with
+let of_string ?alphabet str =
+  match to_bytes ?alphabet (`Base58 str) with
   | None -> None
   | Some _ -> Some (`Base58 str)
 
-let of_string_exn str =
-  match to_bytes (`Base58 str) with
+let of_string_exn ?alphabet str =
+  match to_bytes ?alphabet (`Base58 str) with
   | None -> invalid_arg "Base58.of_string_exn"
   | Some _ -> `Base58 str
 
 let to_string (`Base58 b58) = b58
+
+module Versioned = struct
+  type version =
+    | P2PKH
+    | P2SH
+    | Namecoin_P2PKH
+    | Privkey
+    | Testnet_P2PKH
+    | Testnet_P2SH
+    | Unknown of int
+
+  let int_of_version = function
+    | P2PKH -> 0
+    | P2SH -> 5
+    | Namecoin_P2PKH -> 52
+    | Privkey -> 128
+    | Testnet_P2PKH -> 111
+    | Testnet_P2SH -> 196
+    | Unknown i -> i
+
+  let version_of_int = function
+    | 0 -> P2PKH
+    | 5 -> P2SH
+    | 52 -> Namecoin_P2PKH
+    | 128 -> Privkey
+    | 111 -> Testnet_P2PKH
+    | 196 -> Testnet_P2SH
+    | i -> Unknown i
+
+  type t = {
+    version : version ;
+    payload : string ;
+  }
+
+  let create ?(version=P2PKH) payload = { version ; payload }
+  let of_base58 ?alphabet b58 =
+    match to_bytes ?alphabet b58 with
+    | None -> None
+    | Some bytes ->
+      let version = version_of_int (Char.code (String.get bytes 0)) in
+      let payload = String.(sub bytes 1 (length bytes - 1)) in
+      Some { version ; payload }
+
+  let of_base58_exn ?alphabet b58 =
+    match of_base58 ?alphabet b58 with
+    | None -> invalid_arg "Base58.Versioned.of_base58_exn"
+    | Some b58 -> b58
+
+  let to_base58 ?alphabet { version ; payload } =
+    of_bytes ?alphabet
+      (String.init 1 (fun _ -> int_of_version version |> Char.chr) ^ payload)
+
+  let of_string ?alphabet str =
+    match of_string ?alphabet str with
+    | None -> None
+    | Some b58 -> of_base58 ?alphabet b58
+
+  let of_string_exn ?alphabet str =
+    match of_string ?alphabet str with
+    | None -> invalid_arg "Base58.Versioned.of_string_exn"
+    | Some b58 -> b58
+
+  let to_string ?alphabet t =
+    to_base58 ?alphabet t |> to_string
+end
