@@ -22,6 +22,7 @@ type base58 = t
 (** Type of Base58Check encoded data. *)
 
 val pp : Format.formatter -> t -> unit
+val show : t -> string
 
 val of_bytes : ?alphabet:Alphabet.t -> string -> t
 (** [of_bytes ?alphabet bytes] is the Base58Check encoding of [bytes]
@@ -50,7 +51,41 @@ val of_string_exn : ?alphabet:Alphabet.t -> string -> t
 val to_string : t -> string
 (** [to_string [`Base58 b58] is [b58]. *)
 
-module Versioned : sig
+(** {1 Tezos prefixes} *)
+
+module Tezos : sig
+  type version =
+    | Block
+    | Operation
+    | Protocol
+    | Address
+    | Peer
+    | Public_key
+    | Secret_key
+    | Signature
+
+  type t = private {
+    version : version ;
+    payload : string ;
+  }
+
+  val pp : Format.formatter -> t -> unit
+  val show : t -> string
+
+  val create : ?version:version -> string -> t
+
+  val of_base58 : ?alphabet:Alphabet.t -> base58 -> t option
+  val of_base58_exn : ?alphabet:Alphabet.t -> base58 -> t
+  val to_base58 : ?alphabet:Alphabet.t -> t -> base58
+
+  val of_string : ?alphabet:Alphabet.t -> string -> t option
+  val of_string_exn : ?alphabet:Alphabet.t -> string -> t
+  val to_string : ?alphabet:Alphabet.t -> t -> string
+end
+
+(** {1 Bitcoin, or one-byte prefixes only} *)
+
+module Bitcoin : sig
   type version =
     | P2PKH
     | P2SH
@@ -60,12 +95,19 @@ module Versioned : sig
     | Testnet_P2SH
     | Unknown of int
 
+  val version_of_int : int -> version
+  val int_of_version : version -> int
+
   type t = private {
     version : version ;
     payload : string ;
   }
 
+  val pp : Format.formatter -> t -> unit
+  val show : t -> string
+
   val create : ?version:version -> string -> t
+
   val of_base58 : ?alphabet:Alphabet.t -> base58 -> t option
   val of_base58_exn : ?alphabet:Alphabet.t -> base58 -> t
   val to_base58 : ?alphabet:Alphabet.t -> t -> base58

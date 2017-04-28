@@ -143,8 +143,104 @@ let of_string_exn ?alphabet str =
   | Some _ -> `Base58 str
 
 let to_string (`Base58 b58) = b58
+let show = to_string
 
-module Versioned = struct
+module Tezos = struct
+  (* 32 *)
+  let block_hash = "\001\052" (* B(51) *)
+  let operation_hash = "\005\116" (* o(51) *)
+  let protocol_hash = "\002\170" (* P(51) *)
+
+  (* 20 *)
+  let ed25519_public_key_hash = "\006\161\159" (* tz1(36) *)
+
+  (* 16 *)
+  let cryptobox_public_key_hash = "\153\103" (* id(30) *)
+
+  (* 32 *)
+  let ed25519_public_key = "\013\015\037\217" (* edpk(54) *)
+
+  (* 64 *)
+  let ed25519_secret_key = "\043\246\078\007" (* edsk(98) *)
+  let ed25519_signature = "\009\245\205\134\018" (* edsig(99) *)
+
+  type version =
+    | Block
+    | Operation
+    | Protocol
+    | Address
+    | Peer
+    | Public_key
+    | Secret_key
+    | Signature
+
+  type t = {
+    version : version ;
+    payload : string ;
+  }
+
+  let sub_or_fail str start len error_msg =
+    try String.sub str start len with _ ->
+      invalid_arg
+        (Printf.sprintf "Tezos.of_bytes: %s must be %d bytes long"
+           error_msg (len - start))
+
+  let t_of_bytes bytes =
+    if String.length bytes < 2 then
+      invalid_arg "Tezos.of_bytes: str < 2" ;
+    match String.sub bytes 0 2 with
+    | "\001\052" -> { version = Block ; payload = sub_or_fail bytes 2 32 "block" }
+    | "\005\116" -> { version = Operation ; payload = sub_or_fail bytes 2 32 "operation" }
+    | "\002\170" -> { version = Protocol ; payload = sub_or_fail bytes 2 32 "protocol" }
+    | "\006\161\159" -> { version = Address ; payload = sub_or_fail bytes 3 20 "address" }
+    | "\153\103" -> { version = Peer ; payload = sub_or_fail bytes 2 16 "peer" }
+    | "\013\015\037\217" -> { version = Public_key ; payload = sub_or_fail bytes 4 32 "public_key" }
+    | "\043\246\078\007" -> { version = Secret_key ; payload = sub_or_fail bytes 4 64 "secret_key" }
+    | "\009\245\205\134\018" -> { version = Signature ; payload = sub_or_fail bytes 5 64 "signature" }
+    | _ -> invalid_arg "Tezos.of_bytes: unknown prefix"
+
+  let string_of_version = function
+    | Block -> block_hash
+    | Operation -> operation_hash
+    | Protocol -> protocol_hash
+    | Address -> ed25519_public_key_hash
+    | Peer -> cryptobox_public_key_hash
+    | Public_key -> ed25519_public_key
+    | Secret_key -> ed25519_secret_key
+    | Signature -> ed25519_signature
+
+  let create ?(version=Address) payload = { version ; payload }
+  let of_base58 ?alphabet b58 =
+    match to_bytes ?alphabet b58 with
+    | None -> None
+    | Some bytes -> try Some (t_of_bytes bytes) with _ -> None
+
+  let of_base58_exn ?alphabet b58 =
+    match to_bytes ?alphabet b58 with
+    | None -> invalid_arg "Tezos.of_base58_exn: not base58 data"
+    | Some bytes -> t_of_bytes bytes
+
+  let to_base58 ?alphabet { version ; payload } =
+    of_bytes ?alphabet (string_of_version version ^ payload)
+
+  let of_string ?alphabet str =
+    match of_string ?alphabet str with
+    | None -> None
+    | Some b58 -> of_base58 ?alphabet b58
+
+  let of_string_exn ?alphabet str =
+    match of_string ?alphabet str with
+    | None -> invalid_arg "Base58.Tezos.of_string_exn"
+    | Some b58 -> b58
+
+  let to_string ?alphabet t =
+    to_base58 ?alphabet t |> to_string
+
+  let show t = to_string t
+  let pp ppf t = Format.fprintf ppf "%s" (show t)
+end
+
+module Bitcoin = struct
   type version =
     | P2PKH
     | P2SH
@@ -188,7 +284,7 @@ module Versioned = struct
 
   let of_base58_exn ?alphabet b58 =
     match of_base58 ?alphabet b58 with
-    | None -> invalid_arg "Base58.Versioned.of_base58_exn"
+    | None -> invalid_arg "Base58.Bitcoin.of_base58_exn"
     | Some b58 -> b58
 
   let to_base58 ?alphabet { version ; payload } =
@@ -202,9 +298,12 @@ module Versioned = struct
 
   let of_string_exn ?alphabet str =
     match of_string ?alphabet str with
-    | None -> invalid_arg "Base58.Versioned.of_string_exn"
+    | None -> invalid_arg "Base58.Bitcoin.of_string_exn"
     | Some b58 -> b58
 
   let to_string ?alphabet t =
     to_base58 ?alphabet t |> to_string
+
+  let show t = to_string t
+  let pp ppf t = Format.fprintf ppf "%s" (show t)
 end
