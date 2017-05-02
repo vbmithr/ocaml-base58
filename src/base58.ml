@@ -185,18 +185,31 @@ module Tezos = struct
         (Printf.sprintf "Tezos.of_bytes: %s must be %d bytes long"
            error_msg (len - start))
 
+  let chars_of_string str =
+    let chars = ref [] in
+    StringLabels.iter str ~f:(fun c -> chars := c :: !chars) ;
+    List.rev !chars
+
   let t_of_bytes bytes =
     if String.length bytes < 2 then
       invalid_arg "Tezos.of_bytes: str < 2" ;
-    match String.sub bytes 0 2 with
-    | "\001\052" -> { version = Block ; payload = sub_or_fail bytes 2 32 "block" }
-    | "\005\116" -> { version = Operation ; payload = sub_or_fail bytes 2 32 "operation" }
-    | "\002\170" -> { version = Protocol ; payload = sub_or_fail bytes 2 32 "protocol" }
-    | "\006\161\159" -> { version = Address ; payload = sub_or_fail bytes 3 20 "address" }
-    | "\153\103" -> { version = Peer ; payload = sub_or_fail bytes 2 16 "peer" }
-    | "\013\015\037\217" -> { version = Public_key ; payload = sub_or_fail bytes 4 32 "public_key" }
-    | "\043\246\078\007" -> { version = Secret_key ; payload = sub_or_fail bytes 4 64 "secret_key" }
-    | "\009\245\205\134\018" -> { version = Signature ; payload = sub_or_fail bytes 5 64 "signature" }
+    match chars_of_string (String.sub bytes 0 5) with
+    | '\001' :: '\052' :: _ ->
+      { version = Block ; payload = sub_or_fail bytes 2 32 "block" }
+    | '\005' :: '\116' :: _ ->
+      { version = Operation ; payload = sub_or_fail bytes 2 32 "operation" }
+    | '\002' :: '\170' :: _ ->
+      { version = Protocol ; payload = sub_or_fail bytes 2 32 "protocol" }
+    | '\006' :: '\161' :: '\159' :: _ ->
+      { version = Address ; payload = sub_or_fail bytes 3 20 "address" }
+    | '\153' :: '\103' :: _ ->
+      { version = Peer ; payload = sub_or_fail bytes 2 16 "peer" }
+    | '\013' :: '\015' :: '\037' :: '\217' :: _ ->
+      { version = Public_key ; payload = sub_or_fail bytes 4 32 "public_key" }
+    | '\043' :: '\246' :: '\078' :: '\007' :: _ ->
+      { version = Secret_key ; payload = sub_or_fail bytes 4 64 "secret_key" }
+    | '\009' :: '\245' :: '\205' :: '\134' :: '\018' :: _ ->
+      { version = Signature ; payload = sub_or_fail bytes 5 64 "signature" }
     | _ -> invalid_arg "Tezos.of_bytes: unknown prefix"
 
   let string_of_version = function
