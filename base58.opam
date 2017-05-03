@@ -1,0 +1,18 @@
+opam-version: "1.2"
+name: "base58"
+version: "1.0"
+maintainer: "Vincent Bernardoff <vb@luminar.eu.org>"
+authors: ["Vincent Bernardoff <vb@luminar.eu.org>"]
+homepage: "https://github.com/vbmithr/bs_api"
+doc: "https://vbmithr.github.io/ocaml-base58/doc"
+license: "ISC"
+dev-repo: "https://github.com/vbmithr/ocaml-base58.git"
+bug-reports: "https://github.com/vbmithr/ocaml-base58/issues"
+tags: []
+available: [ ocaml-version >= "4.03.0" ]
+depends: [
+  "jbuilder" {build & >= "1.0+beta8"}
+  "zarith" {>= "1.4.1"}
+  "nocrypto" {>= "0.5.4"}
+]
+build: [ "jbuilder" "build" "@install" ]
