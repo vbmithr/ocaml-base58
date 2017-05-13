@@ -21,6 +21,10 @@ type t = [`Base58 of string]
 type base58 = t
 (** Type of Base58Check encoded data. *)
 
+val compare : t -> t -> int
+val equal : t -> t -> bool
+val (=) : t -> t -> bool
+
 val pp : Format.formatter -> t -> unit
 val show : t -> string
 
@@ -69,6 +73,10 @@ module Tezos : sig
     payload : string ;
   }
 
+  val compare : t -> t -> int
+  val equal : t -> t -> bool
+  val (=) : t -> t -> bool
+
   val pp : Format.formatter -> t -> unit
   val show : t -> string
 
@@ -102,6 +110,10 @@ module Bitcoin : sig
     version : version ;
     payload : string ;
   }
+
+  val compare : t -> t -> int
+  val equal : t -> t -> bool
+  val (=) : t -> t -> bool
 
   val pp : Format.formatter -> t -> unit
   val show : t -> string

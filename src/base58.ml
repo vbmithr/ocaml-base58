@@ -113,6 +113,10 @@ let checksum s =
 type t = [`Base58 of string]
 type base58 = t
 
+let compare (`Base58 t) (`Base58 t') = String.compare t t'
+let equal (`Base58 t) (`Base58 t') = String.equal t t'
+let (=) = equal
+
 let pp ppf (`Base58 b58) = Format.pp_print_string ppf b58
 
 (* Append a 4-bytes cryptographic checksum before encoding string s *)
@@ -178,6 +182,14 @@ module Tezos = struct
     version : version ;
     payload : string ;
   }
+
+  let compare { version = v1; payload = p1} { version = v2 ; payload = p2 } =
+    if v1 > v2 then 1
+    else if v1 < v2 then -1
+    else String.compare p1 p2
+
+  let equal t t' = Pervasives.(=) t t'
+  let (=) = equal
 
   let sub_or_fail str start len error_msg =
     try String.sub str start len with _ ->
@@ -285,6 +297,14 @@ module Bitcoin = struct
     version : version ;
     payload : string ;
   }
+
+  let compare { version = v1; payload = p1} { version = v2 ; payload = p2 } =
+    if v1 > v2 then 1
+    else if v1 < v2 then -1
+    else String.compare p1 p2
+
+  let equal t t' = Pervasives.(=) t t'
+  let (=) = equal
 
   let create ?(version=P2PKH) payload = { version ; payload }
   let of_base58 ?alphabet b58 =
