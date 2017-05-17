@@ -235,31 +235,31 @@ module Tezos = struct
     | Signature -> ed25519_signature
 
   let create ?(version=Address) payload = { version ; payload }
-  let of_base58 ?alphabet b58 =
-    match to_bytes ?alphabet b58 with
+  let of_base58 b58 =
+    match to_bytes b58 with
     | None -> None
     | Some bytes -> try Some (t_of_bytes bytes) with _ -> None
 
-  let of_base58_exn ?alphabet b58 =
-    match to_bytes ?alphabet b58 with
+  let of_base58_exn b58 =
+    match to_bytes b58 with
     | None -> invalid_arg "Tezos.of_base58_exn: not base58 data"
     | Some bytes -> t_of_bytes bytes
 
-  let to_base58 ?alphabet { version ; payload } =
-    of_bytes ?alphabet (string_of_version version ^ payload)
+  let to_base58 { version ; payload } =
+    of_bytes (string_of_version version ^ payload)
 
-  let of_string ?alphabet str =
-    match of_string ?alphabet str with
+  let of_string str =
+    match of_string str with
     | None -> None
-    | Some b58 -> of_base58 ?alphabet b58
+    | Some b58 -> of_base58 b58
 
-  let of_string_exn ?alphabet str =
-    match of_string ?alphabet str with
+  let of_string_exn str =
+    match of_string str with
     | None -> invalid_arg "Base58.Tezos.of_string_exn"
     | Some b58 -> b58
 
-  let to_string ?alphabet t =
-    to_base58 ?alphabet t |> to_string
+  let to_string t =
+    to_base58 t |> to_string
 
   let show t = to_string t
   let pp ppf t = Format.fprintf ppf "%s" (show t)
@@ -307,35 +307,35 @@ module Bitcoin = struct
   let (=) = equal
 
   let create ?(version=P2PKH) payload = { version ; payload }
-  let of_base58 ?alphabet b58 =
-    match to_bytes ?alphabet b58 with
+  let of_base58 b58 =
+    match to_bytes b58 with
     | None -> None
     | Some bytes ->
       let version = version_of_int (Char.code (String.get bytes 0)) in
       let payload = String.(sub bytes 1 (length bytes - 1)) in
       Some { version ; payload }
 
-  let of_base58_exn ?alphabet b58 =
-    match of_base58 ?alphabet b58 with
+  let of_base58_exn b58 =
+    match of_base58 b58 with
     | None -> invalid_arg "Base58.Bitcoin.of_base58_exn"
     | Some b58 -> b58
 
-  let to_base58 ?alphabet { version ; payload } =
-    of_bytes ?alphabet
+  let to_base58 { version ; payload } =
+    of_bytes
       (String.init 1 (fun _ -> int_of_version version |> Char.chr) ^ payload)
 
-  let of_string ?alphabet str =
-    match of_string ?alphabet str with
+  let of_string str =
+    match of_string str with
     | None -> None
-    | Some b58 -> of_base58 ?alphabet b58
+    | Some b58 -> of_base58 b58
 
-  let of_string_exn ?alphabet str =
-    match of_string ?alphabet str with
+  let of_string_exn str =
+    match of_string str with
     | None -> invalid_arg "Base58.Bitcoin.of_string_exn"
     | Some b58 -> b58
 
-  let to_string ?alphabet t =
-    to_base58 ?alphabet t |> to_string
+  let to_string t =
+    to_base58 t |> to_string
 
   let show t = to_string t
   let pp ppf t = Format.fprintf ppf "%s" (show t)

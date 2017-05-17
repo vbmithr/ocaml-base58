@@ -82,13 +82,13 @@ module Tezos : sig
 
   val create : ?version:version -> string -> t
 
-  val of_base58 : ?alphabet:Alphabet.t -> base58 -> t option
-  val of_base58_exn : ?alphabet:Alphabet.t -> base58 -> t
-  val to_base58 : ?alphabet:Alphabet.t -> t -> base58
+  val of_base58 : base58 -> t option
+  val of_base58_exn : base58 -> t
+  val to_base58 : t -> base58
 
-  val of_string : ?alphabet:Alphabet.t -> string -> t option
-  val of_string_exn : ?alphabet:Alphabet.t -> string -> t
-  val to_string : ?alphabet:Alphabet.t -> t -> string
+  val of_string : string -> t option
+  val of_string_exn : string -> t
+  val to_string : t -> string
 end
 
 (** {1 Bitcoin, or one-byte prefixes only} *)
@@ -120,12 +120,12 @@ module Bitcoin : sig
 
   val create : ?version:version -> string -> t
 
-  val of_base58 : ?alphabet:Alphabet.t -> base58 -> t option
-  val of_base58_exn : ?alphabet:Alphabet.t -> base58 -> t
-  val to_base58 : ?alphabet:Alphabet.t -> t -> base58
+  val of_base58 : base58 -> t option
+  val of_base58_exn : base58 -> t
+  val to_base58 : t -> base58
 
-  val of_string : ?alphabet:Alphabet.t -> string -> t option
-  val of_string_exn : ?alphabet:Alphabet.t -> string -> t
-  val to_string : ?alphabet:Alphabet.t -> t -> string
+  val of_string : string -> t option
+  val of_string_exn : string -> t
+  val to_string : t -> string
 end
 
