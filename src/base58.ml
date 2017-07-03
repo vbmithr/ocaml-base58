@@ -263,6 +263,9 @@ module Tezos = struct
 
   let show t = to_string t
   let pp ppf t = Format.fprintf ppf "%s" (show t)
+
+  module Set = Set.Make(struct type nonrec t = t let compare = compare end)
+  module Map = Map.Make(struct type nonrec t = t let compare = compare end)
 end
 
 module Bitcoin = struct
@@ -339,4 +342,10 @@ module Bitcoin = struct
 
   let show t = to_string t
   let pp ppf t = Format.fprintf ppf "%s" (show t)
+
+  module Set = Set.Make(struct type nonrec t = t let compare = compare end)
+  module Map = Map.Make(struct type nonrec t = t let compare = compare end)
 end
+
+module Set = Set.Make(struct type t = base58 let compare = compare end)
+module Map = Map.Make(struct type t = base58 let compare = compare end)

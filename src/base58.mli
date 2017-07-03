@@ -89,6 +89,9 @@ module Tezos : sig
   val of_string : string -> t option
   val of_string_exn : string -> t
   val to_string : t -> string
+
+  module Set : Set.S with type elt := t
+  module Map : Map.S with type key := t
 end
 
 (** {1 Bitcoin, or one-byte prefixes only} *)
@@ -127,5 +130,10 @@ module Bitcoin : sig
   val of_string : string -> t option
   val of_string_exn : string -> t
   val to_string : t -> string
+
+  module Set : Set.S with type elt := t
+  module Map : Map.S with type key := t
 end
 
+module Set : Set.S with type elt := t
+module Map : Map.S with type key := t
