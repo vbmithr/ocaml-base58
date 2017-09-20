@@ -102,12 +102,9 @@ let raw_decode ?(alphabet=Alphabet.default) s =
   String.init len (fun i -> String.get res (len - i - 1))
 
 let checksum s =
-  let hash =
-    Nocrypto.Hash.digest `SHA256 @@
-    Nocrypto.Hash.digest `SHA256 @@
-    Cstruct.of_string s in
+  let hash = Digestif.SHA256.Bytes.(digest (digest s)) in
   let res = Bytes.make 4 '\000' in
-  Cstruct.blit_to_bytes hash 0 res 0 4 ;
+  Bytes.blit hash 0 res 0 4 ;
   Bytes.to_string res
 
 type t = [`Base58 of string]
