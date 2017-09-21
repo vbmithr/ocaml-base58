@@ -13,6 +13,6 @@ available: [ ocaml-version >= "4.03.0" ]
 depends: [
   "jbuilder" {build & >= "1.0+beta8"}
   "zarith" {>= "1.4.1"}
-  "nocrypto" {>= "0.5.4"}
+  "digestif" {>= "0.3"}
 ]
 build: [ "jbuilder" "build" "@install" ]
