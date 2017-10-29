@@ -1,6 +1,6 @@
 (executable
  ((name test)
-  (libraries (base58 oUnit))))
+  (libraries (base58 alcotest))))
 
 (alias
  ((name    runtest)
