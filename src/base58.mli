@@ -104,6 +104,7 @@ module Bitcoin : sig
     | Privkey
     | Testnet_P2PKH
     | Testnet_P2SH
+    | Testnet_privkey
     | Unknown of int
 
   val version_of_int : int -> version

@@ -273,15 +273,17 @@ module Bitcoin = struct
     | Privkey
     | Testnet_P2PKH
     | Testnet_P2SH
+    | Testnet_privkey
     | Unknown of int
 
   let int_of_version = function
     | P2PKH -> 0
     | P2SH -> 5
     | Namecoin_P2PKH -> 52
-    | Privkey -> 128
+    | Privkey -> 0x80
     | Testnet_P2PKH -> 111
     | Testnet_P2SH -> 196
+    | Testnet_privkey -> 0xef
     | Unknown i -> i
 
   let version_of_int = function
