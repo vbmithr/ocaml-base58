@@ -231,7 +231,8 @@ module Tezos = struct
     | Secret_key -> ed25519_secret_key
     | Signature -> ed25519_signature
 
-  let create ?(version=Address) payload = { version ; payload }
+  let create ~version ~payload = { version ; payload }
+
   let of_base58 b58 =
     match to_bytes b58 with
     | None -> None
@@ -308,7 +309,8 @@ module Bitcoin = struct
   let equal t t' = Pervasives.(=) t t'
   let (=) = equal
 
-  let create ?(version=P2PKH) payload = { version ; payload }
+  let create ~version ~payload = { version ; payload }
+
   let of_base58 b58 =
     match to_bytes b58 with
     | None -> None

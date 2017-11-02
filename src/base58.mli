@@ -80,7 +80,7 @@ module Tezos : sig
   val pp : Format.formatter -> t -> unit
   val show : t -> string
 
-  val create : ?version:version -> string -> t
+  val create : version:version -> payload:string -> t
 
   val of_base58 : base58 -> t option
   val of_base58_exn : base58 -> t
@@ -122,7 +122,7 @@ module Bitcoin : sig
   val pp : Format.formatter -> t -> unit
   val show : t -> string
 
-  val create : ?version:version -> string -> t
+  val create : version:version -> payload:string -> t
 
   val of_base58 : base58 -> t option
   val of_base58_exn : base58 -> t
