@@ -102,10 +102,11 @@ let raw_decode ?(alphabet=Alphabet.default) s =
   String.init len (fun i -> String.get res (len - i - 1))
 
 let checksum s =
+  let s = Bytes.unsafe_of_string s in
   let hash = Digestif.SHA256.Bytes.(digest (digest s)) in
   let res = Bytes.make 4 '\000' in
   Bytes.blit hash 0 res 0 4 ;
-  Bytes.to_string res
+  Bytes.unsafe_to_string res
 
 type t = [`Base58 of string]
 type base58 = t
