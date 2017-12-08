@@ -102,13 +102,14 @@ module Bitcoin : sig
     | P2SH
     | Namecoin_P2PKH
     | Privkey
+    | BIP32_priv
+    | BIP32_pub
     | Testnet_P2PKH
     | Testnet_P2SH
     | Testnet_privkey
-    | Unknown of int
-
-  val version_of_int : int -> version
-  val int_of_version : version -> int
+    | Testnet_BIP32_priv
+    | Testnet_BIP32_pub
+    | Unknown of string
 
   type t = private {
     version : version ;
