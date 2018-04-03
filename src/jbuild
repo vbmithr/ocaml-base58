@@ -2,4 +2,4 @@
  ((name        base58)
   (public_name base58)
   (modules (base58))
-  (libraries (zarith digestif.c))))
+  (libraries (zarith))))

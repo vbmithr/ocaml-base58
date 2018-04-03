@@ -1,6 +1,6 @@
 (executable
  ((name test)
-  (libraries (base58 alcotest))))
+  (libraries (base58 nocrypto alcotest))))
 
 (alias
  ((name    runtest)

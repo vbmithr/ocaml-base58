@@ -7,6 +7,10 @@
 (*                                                                        *)
 (**************************************************************************)
 
+module type CRYPTO = sig
+  val sha256 : string -> string
+end
+
 let base = 58
 let zbase = Z.of_int base
 
@@ -101,11 +105,11 @@ let raw_decode ?(alphabet=Alphabet.default) s =
   String.make zeros '\000' ^
   String.init len (fun i -> String.get res (len - i - 1))
 
-let checksum s =
-  let s = Bytes.unsafe_of_string s in
-  let hash = Digestif.SHA256.Bytes.(digest (digest s)) in
+let checksum c s =
+  let module Crypto = (val c : CRYPTO) in
+  let hash = Crypto.(sha256 (sha256 s)) in
   let res = Bytes.make 4 '\000' in
-  Bytes.blit hash 0 res 0 4 ;
+  Bytes.blit_string hash 0 res 0 4 ;
   Bytes.unsafe_to_string res
 
 type t = [`Base58 of string]
@@ -118,29 +122,29 @@ let (=) = equal
 let pp ppf (`Base58 b58) = Format.pp_print_string ppf b58
 
 (* Append a 4-bytes cryptographic checksum before encoding string s *)
-let of_bytes ?alphabet s =
-  `Base58 (raw_encode ?alphabet (s ^ checksum s))
+let of_bytes ?alphabet c s =
+  `Base58 (raw_encode ?alphabet (s ^ checksum c s))
 
-let to_bytes ?alphabet (`Base58 s) =
+let to_bytes ?alphabet c (`Base58 s) =
   let s = raw_decode ?alphabet s in
   let len = String.length s in
   let msg = String.sub s 0 (len-4) in
   let msg_hash = String.sub s (len-4) 4 in
-  if msg_hash <> checksum msg then None
+  if msg_hash <> checksum c msg then None
   else Some msg
 
-let to_bytes_exn ?alphabet s =
-  match to_bytes ?alphabet s with
+let to_bytes_exn ?alphabet c s =
+  match to_bytes ?alphabet c s with
   | None -> invalid_arg "Base58.safe_decode_exn"
   | Some s -> s
 
-let of_string ?alphabet str =
-  match to_bytes ?alphabet (`Base58 str) with
+let of_string ?alphabet c str =
+  match to_bytes ?alphabet c (`Base58 str) with
   | None -> None
   | Some _ -> Some (`Base58 str)
 
-let of_string_exn ?alphabet str =
-  match to_bytes ?alphabet (`Base58 str) with
+let of_string_exn ?alphabet c str =
+  match to_bytes ?alphabet c (`Base58 str) with
   | None -> invalid_arg "Base58.of_string_exn"
   | Some _ -> `Base58 str
 
@@ -234,34 +238,34 @@ module Tezos = struct
 
   let create ~version ~payload = { version ; payload }
 
-  let of_base58 b58 =
-    match to_bytes b58 with
+  let of_base58 c b58 =
+    match to_bytes c b58 with
     | None -> None
     | Some bytes -> try Some (t_of_bytes bytes) with _ -> None
 
-  let of_base58_exn b58 =
-    match to_bytes b58 with
+  let of_base58_exn c b58 =
+    match to_bytes c b58 with
     | None -> invalid_arg "Tezos.of_base58_exn: not base58 data"
     | Some bytes -> t_of_bytes bytes
 
-  let to_base58 { version ; payload } =
-    of_bytes (string_of_version version ^ payload)
+  let to_base58 c { version ; payload } =
+    of_bytes c (string_of_version version ^ payload)
 
-  let of_string str =
-    match of_string str with
+  let of_string c str =
+    match of_string c str with
     | None -> None
-    | Some b58 -> of_base58 b58
+    | Some b58 -> of_base58 c b58
 
-  let of_string_exn str =
-    match of_string str with
+  let of_string_exn c str =
+    match of_string c str with
     | None -> invalid_arg "Base58.Tezos.of_string_exn"
     | Some b58 -> b58
 
-  let to_string t =
-    to_base58 t |> to_string
+  let to_string c t =
+    to_string (to_base58 c t)
 
-  let show t = to_string t
-  let pp ppf t = Format.fprintf ppf "%s" (show t)
+  let show = to_string
+  let pp c ppf t = Format.fprintf ppf "%s" (show c t)
 
   module Set = Set.Make(struct type nonrec t = t let compare = compare end)
   module Map = Map.Make(struct type nonrec t = t let compare = compare end)
@@ -326,32 +330,32 @@ module Bitcoin = struct
 
   let create ~version ~payload = { version ; payload }
 
-  let of_base58_exn b58 =
-    let bytes = to_bytes_exn b58 in
+  let of_base58_exn c b58 =
+    let bytes = to_bytes_exn c b58 in
     let version, payload = t_of_bytes bytes in
     { version ; payload }
 
-  let of_base58 b58 =
-    try Some (of_base58_exn b58) with _ -> None
+  let of_base58 c b58 =
+    try Some (of_base58_exn c b58) with _ -> None
 
-  let to_base58 { version ; payload } =
-    of_bytes (string_of_version version ^ payload)
+  let to_base58 c { version ; payload } =
+    of_bytes c (string_of_version version ^ payload)
 
-  let of_string str =
-    match of_string str with
+  let of_string c str =
+    match of_string c str with
     | None -> None
-    | Some b58 -> of_base58 b58
+    | Some b58 -> of_base58 c b58
 
-  let of_string_exn str =
-    match of_string str with
+  let of_string_exn c str =
+    match of_string c str with
     | None -> invalid_arg "Base58.Bitcoin.of_string_exn"
     | Some b58 -> b58
 
-  let to_string t =
-    to_base58 t |> to_string
+  let to_string c t =
+    to_string (to_base58 c t)
 
-  let show t = to_string t
-  let pp ppf t = Format.fprintf ppf "%s" (show t)
+  let show = to_string
+  let pp c ppf t = Format.fprintf ppf "%s" (show c t)
 
   module Set = Set.Make(struct type nonrec t = t let compare = compare end)
   module Map = Map.Make(struct type nonrec t = t let compare = compare end)
