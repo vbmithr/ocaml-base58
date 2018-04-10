@@ -1,6 +1,6 @@
 (executable
  ((name test)
-  (libraries (base58 nocrypto alcotest))))
+  (libraries (base58 digestif.c alcotest))))
 
 (alias
  ((name    runtest)

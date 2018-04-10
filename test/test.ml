@@ -1,6 +1,7 @@
 module Crypto = struct
   let sha256 s =
-      Cstruct.(Nocrypto.Hash.digest `SHA256 (of_string s) |> to_string)
+    let open Digestif.SHA256.Bytes in
+    Bytes.(unsafe_to_string (digest (unsafe_of_string s)))
 end
 
 let c = (module Crypto : Base58.CRYPTO)
