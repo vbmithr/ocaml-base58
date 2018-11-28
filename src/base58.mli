@@ -141,5 +141,37 @@ module Bitcoin : sig
   module Map : Map.S with type key := t
 end
 
+module Komodo : sig
+  type version =
+    | P2PKH
+    | P2SH
+    | WIF
+
+  type t = private {
+    version : version ;
+    payload : string ;
+  }
+
+  val compare : t -> t -> int
+  val equal : t -> t -> bool
+  val (=) : t -> t -> bool
+
+  val pp : (module CRYPTO) -> Format.formatter -> t -> unit
+  val show : (module CRYPTO) -> t -> string
+
+  val create : version:version -> payload:string -> t
+
+  val of_base58 : (module CRYPTO) -> base58 -> t option
+  val of_base58_exn : (module CRYPTO) -> base58 -> t
+  val to_base58 : (module CRYPTO) -> t -> base58
+
+  val of_string : (module CRYPTO) -> string -> t option
+  val of_string_exn : (module CRYPTO) -> string -> t
+  val to_string : (module CRYPTO) -> t -> string
+
+  module Set : Set.S with type elt := t
+  module Map : Map.S with type key := t
+end
+
 module Set : Set.S with type elt := t
 module Map : Map.S with type key := t

@@ -357,5 +357,70 @@ module Bitcoin = struct
   module Map = Map.Make(struct type nonrec t = t let compare = compare end)
 end
 
+module Komodo = struct
+  type version =
+    | P2PKH
+    | P2SH
+    | WIF
+
+  let string_of_version = function
+    | P2PKH -> "\060"
+    | P2SH -> "\085"
+    | WIF -> "\128"
+
+  let version_of_bytes_exn s =
+    let len = String.length s in
+    match chars_of_string s with
+    | '\060' :: _ -> P2PKH, String.sub s 1 (len - 1)
+    | '\085' :: _ -> P2SH, String.sub s 1 (len - 1)
+    | '\128' :: _  -> WIF, String.sub s 1 (len - 1)
+    | _ -> invalid_arg "Komodo.version_of_string_exn"
+
+  type t = {
+    version : version ;
+    payload : string ;
+  }
+
+  let compare { version = v1; payload = p1} { version = v2 ; payload = p2 } =
+    if v1 > v2 then 1
+    else if v1 < v2 then -1
+    else String.compare p1 p2
+
+  let equal t t' = Pervasives.(=) t t'
+  let (=) = equal
+
+  let create ~version ~payload = { version ; payload }
+
+  let of_base58_exn c b58 =
+    let bytes = to_bytes_exn c b58 in
+    let version, payload = version_of_bytes_exn bytes in
+    { version ; payload }
+
+  let of_base58 c b58 =
+    try Some (of_base58_exn c b58) with _ -> None
+
+  let to_base58 c { version ; payload } =
+    of_bytes c (string_of_version version ^ payload)
+
+  let of_string c str =
+    match of_string c str with
+    | None -> None
+    | Some b58 -> of_base58 c b58
+
+  let of_string_exn c str =
+    match of_string c str with
+    | None -> invalid_arg "Base58.Bitcoin.of_string_exn"
+    | Some b58 -> b58
+
+  let to_string c t =
+    to_string (to_base58 c t)
+
+  let show = to_string
+  let pp c ppf t = Format.fprintf ppf "%s" (show c t)
+
+  module Set = Set.Make(struct type nonrec t = t let compare = compare end)
+  module Map = Map.Make(struct type nonrec t = t let compare = compare end)
+end
+
 module Set = Set.Make(struct type t = base58 let compare = compare end)
 module Map = Map.Make(struct type t = base58 let compare = compare end)
