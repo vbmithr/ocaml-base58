@@ -14,10 +14,6 @@ end
 let base = 58
 let zbase = Z.of_int base
 
-let log2 x = log x /. log 2.
-let log2_base = log2 (float_of_int base)
-
-
 module Alphabet = struct
 
   type t = { encode: string ; decode: string }

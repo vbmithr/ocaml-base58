@@ -1,7 +1,5 @@
 module Crypto = struct
-  let sha256 s =
-    let open Digestif.SHA256.Bytes in
-    Bytes.(unsafe_to_string (digest (unsafe_of_string s)))
+  let sha256 s = Digestif.SHA256.(to_raw_string (digest_string s))
 end
 
 let c = (module Crypto : Base58.CRYPTO)
