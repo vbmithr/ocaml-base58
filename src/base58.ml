@@ -191,7 +191,7 @@ module Tezos = struct
     else if v1 < v2 then -1
     else String.compare p1 p2
 
-  let equal t t' = Pervasives.(=) t t'
+  let equal t t' = Stdlib.(=) t t'
   let (=) = equal
 
   let sub_or_fail str start len error_msg =
@@ -321,7 +321,7 @@ module Bitcoin = struct
     else if v1 < v2 then -1
     else String.compare p1 p2
 
-  let equal t t' = Pervasives.(=) t t'
+  let equal t t' = Stdlib.(=) t t'
   let (=) = equal
 
   let create ~version ~payload = { version ; payload }
@@ -386,7 +386,7 @@ module Komodo = struct
     else if v1 < v2 then -1
     else String.compare p1 p2
 
-  let equal t t' = Pervasives.(=) t t'
+  let equal t t' = Stdlib.(=) t t'
   let (=) = equal
 
   let create ~version ~payload = { version ; payload }
