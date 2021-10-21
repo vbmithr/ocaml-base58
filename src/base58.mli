@@ -59,6 +59,9 @@ val of_string_exn : ?alphabet:Alphabet.t -> (module CRYPTO) -> string -> t
 val to_string : t -> string
 (** [to_string [`Base58 b58] is [b58]. *)
 
+val raw_encode : ?alphabet:Alphabet.t -> string -> string
+(** Encode a string, without adding a checksum *)
+
 (** {1 Tezos prefixes} *)
 
 module Tezos : sig
