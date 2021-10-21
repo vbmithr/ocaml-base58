@@ -5,6 +5,7 @@ maintainer: "Vincent Bernardoff <vb@luminar.eu.org>"
 authors: ["Vincent Bernardoff <vb@luminar.eu.org>"]
 homepage: "https://github.com/vbmithr/bs_api"
 doc: "https://vbmithr.github.io/ocaml-base58/doc"
+description: "Base58 library for Tezos"
 license: "ISC"
 dev-repo: "https://github.com/vbmithr/ocaml-base58.git"
 bug-reports: "https://github.com/vbmithr/ocaml-base58/issues"
