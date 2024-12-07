@@ -32,39 +32,41 @@ val (=) : t -> t -> bool
 val pp : Format.formatter -> t -> unit
 val show : t -> string
 
-val of_bytes : ?alphabet:Alphabet.t -> (module CRYPTO) -> string -> t
-(** [of_bytes ?alphabet bytes] is the Base58Check encoding of [bytes]
-    using alphabet [?alphabet]. *)
-
-val to_bytes : ?alphabet:Alphabet.t -> (module CRYPTO) -> t -> string option
-(** [to_bytes ?alphabet t] is [Some data] if [t] is a valid
-    Base58Check encoding of [data] (with correct checksum), or [None]
-    otherwise. *)
-
-val to_bytes_exn : ?alphabet:Alphabet.t -> (module CRYPTO) -> t -> string
-(** See [to_bytes].
-
-    @raises [Invalid_argument] on checksum failure. *)
-
-val of_string : ?alphabet:Alphabet.t -> (module CRYPTO) -> string -> t option
-(** [of_string b58] is [`Base58 b58] if b58 is a valid Base58Check
-    encoding. *)
-
-val of_string_exn : ?alphabet:Alphabet.t -> (module CRYPTO) -> string -> t
-(** See [of_string].
-
-    @raises [Invalid_argument] if the first argument is not a valid
-    Base58Check encoding. *)
-
 val to_string : t -> string
-(** [to_string [`Base58 b58] is [b58]. *)
+(** [to_string [`Base58 b58]] is [b58]. *)
 
 val raw_encode : ?alphabet:Alphabet.t -> string -> string
 (** Encode a string, without adding a checksum *)
 
+module Checksummed (_ : CRYPTO) : sig
+  val of_bytes : ?alphabet:Alphabet.t -> string -> t
+  (** [of_bytes ?alphabet bytes] is the Base58Check encoding of [bytes]
+      using alphabet [?alphabet]. *)
+
+  val to_bytes : ?alphabet:Alphabet.t -> t -> string option
+  (** [to_bytes ?alphabet t] is [Some data] if [t] is a valid
+      Base58Check encoding of [data] (with correct checksum), or [None]
+      otherwise. *)
+
+  val to_bytes_exn : ?alphabet:Alphabet.t -> t -> string
+  (** See [to_bytes].
+
+      @raises [Invalid_argument] on checksum failure. *)
+
+  val of_string : ?alphabet:Alphabet.t -> string -> t option
+  (** [of_string b58] is [`Base58 b58] if b58 is a valid Base58Check
+      encoding. *)
+
+  val of_string_exn : ?alphabet:Alphabet.t -> string -> t
+  (** See [of_string].
+
+      @raises [Invalid_argument] if the first argument is not a valid
+      Base58Check encoding. *)
+end
+
 (** {1 Tezos prefixes} *)
 
-module Tezos : sig
+module Tezos (_ : CRYPTO) : sig
   type version =
     | Block
     | Operation
@@ -84,18 +86,18 @@ module Tezos : sig
   val equal : t -> t -> bool
   val (=) : t -> t -> bool
 
-  val pp : (module CRYPTO) -> Format.formatter -> t -> unit
-  val show : (module CRYPTO) -> t -> string
+  val pp : Format.formatter -> t -> unit
+  val show : t -> string
 
   val create : version:version -> payload:string -> t
 
-  val of_base58 : (module CRYPTO) -> base58 -> t option
-  val of_base58_exn : (module CRYPTO) -> base58 -> t
-  val to_base58 : (module CRYPTO) -> t -> base58
+  val of_base58     : base58 -> t option
+  val of_base58_exn : base58 -> t
+  val to_base58     : t -> base58
 
-  val of_string : (module CRYPTO) -> string -> t option
-  val of_string_exn : (module CRYPTO) -> string -> t
-  val to_string : (module CRYPTO) -> t -> string
+  val of_string     : string -> t option
+  val of_string_exn : string -> t
+  val to_string     : t -> string
 
   module Set : Set.S with type elt := t
   module Map : Map.S with type key := t
@@ -103,7 +105,7 @@ end
 
 (** {1 Bitcoin, or one-byte prefixes only} *)
 
-module Bitcoin : sig
+module Bitcoin (_ : CRYPTO) : sig
   type version =
     | P2PKH
     | P2SH
@@ -127,24 +129,23 @@ module Bitcoin : sig
   val equal : t -> t -> bool
   val (=) : t -> t -> bool
 
-  val pp : (module CRYPTO) -> Format.formatter -> t -> unit
-  val show : (module CRYPTO) -> t -> string
-
   val create : version:version -> payload:string -> t
 
-  val of_base58 : (module CRYPTO) -> base58 -> t option
-  val of_base58_exn : (module CRYPTO) -> base58 -> t
-  val to_base58 : (module CRYPTO) -> t -> base58
+  val pp            : Format.formatter -> t -> unit
+  val show          : t -> string
+  val of_base58     : base58 -> t option
+  val of_base58_exn : base58 -> t
+  val to_base58     : t -> base58
 
-  val of_string : (module CRYPTO) -> string -> t option
-  val of_string_exn : (module CRYPTO) -> string -> t
-  val to_string : (module CRYPTO) -> t -> string
+  val of_string     : string -> t option
+  val of_string_exn : string -> t
+  val to_string     : t -> string
 
   module Set : Set.S with type elt := t
   module Map : Map.S with type key := t
 end
 
-module Komodo : sig
+module Komodo (_ : CRYPTO) : sig
   type version =
     | P2PKH
     | P2SH
@@ -159,18 +160,17 @@ module Komodo : sig
   val equal : t -> t -> bool
   val (=) : t -> t -> bool
 
-  val pp : (module CRYPTO) -> Format.formatter -> t -> unit
-  val show : (module CRYPTO) -> t -> string
-
   val create : version:version -> payload:string -> t
 
-  val of_base58 : (module CRYPTO) -> base58 -> t option
-  val of_base58_exn : (module CRYPTO) -> base58 -> t
-  val to_base58 : (module CRYPTO) -> t -> base58
+  val pp            : Format.formatter -> t -> unit
+  val show          : t -> string
+  val of_base58     : base58 -> t option
+  val of_base58_exn : base58 -> t
+  val to_base58     : t -> base58
 
-  val of_string : (module CRYPTO) -> string -> t option
-  val of_string_exn : (module CRYPTO) -> string -> t
-  val to_string : (module CRYPTO) -> t -> string
+  val of_string     : string -> t option
+  val of_string_exn : string -> t
+  val to_string     : t -> string
 
   module Set : Set.S with type elt := t
   module Map : Map.S with type key := t
