@@ -65,57 +65,8 @@ module Checksummed (_ : CRYPTO) : sig
   val of_string_exn : ?alphabet:Alphabet.t -> string -> t
 end
 
-(** {1 Tezos prefixes} *)
-
-module Tezos (_ : CRYPTO) : sig
-  type version =
-    | Block
-    | Operation
-    | Protocol
-    | Address
-    | Peer
-    | Public_key
-    | Secret_key
-    | Signature
-
-  type t = private
-    { version : version
-    ; payload : string
-    }
-
-  val compare : t -> t -> int
-  val equal : t -> t -> bool
-  val ( = ) : t -> t -> bool
-  val pp : Format.formatter -> t -> unit
-  val show : t -> string
-  val create : version:version -> payload:string -> t
-  val of_base58 : base58 -> t option
-  val of_base58_exn : base58 -> t
-  val to_base58 : t -> base58
-  val of_string : string -> t option
-  val of_string_exn : string -> t
-  val to_string : t -> string
-
-  module Set : Set.S with type elt := t
-  module Map : Map.S with type key := t
-end
-
-(** {1 Bitcoin, or one-byte prefixes only} *)
-
-module Bitcoin (_ : CRYPTO) : sig
-  type version =
-    | P2PKH
-    | P2SH
-    | Namecoin_P2PKH
-    | Privkey
-    | BIP32_priv
-    | BIP32_pub
-    | Testnet_P2PKH
-    | Testnet_P2SH
-    | Testnet_privkey
-    | Testnet_BIP32_priv
-    | Testnet_BIP32_pub
-    | Unknown of string
+module type S = sig
+  type version
 
   type t = private
     { version : version
@@ -139,33 +90,37 @@ module Bitcoin (_ : CRYPTO) : sig
   module Map : Map.S with type key := t
 end
 
-module Komodo (_ : CRYPTO) : sig
-  type version =
-    | P2PKH
-    | P2SH
-    | WIF
+type tezos_version =
+  | Block
+  | Operation
+  | Protocol
+  | Address
+  | Peer
+  | Public_key
+  | Secret_key
+  | Signature
 
-  type t = private
-    { version : version
-    ; payload : string
-    }
+type bitcoin_version =
+  | P2PKH
+  | P2SH
+  | Namecoin_P2PKH
+  | Privkey
+  | BIP32_priv
+  | BIP32_pub
+  | Testnet_P2PKH
+  | Testnet_P2SH
+  | Testnet_privkey
+  | Testnet_BIP32_priv
+  | Testnet_BIP32_pub
+  | Unknown of string
 
-  val compare : t -> t -> int
-  val equal : t -> t -> bool
-  val ( = ) : t -> t -> bool
-  val create : version:version -> payload:string -> t
-  val pp : Format.formatter -> t -> unit
-  val show : t -> string
-  val of_base58 : base58 -> t option
-  val of_base58_exn : base58 -> t
-  val to_base58 : t -> base58
-  val of_string : string -> t option
-  val of_string_exn : string -> t
-  val to_string : t -> string
+type komodo_version =
+  | P2PKH
+  | P2SH
+  | WIF
 
-  module Set : Set.S with type elt := t
-  module Map : Map.S with type key := t
-end
-
+module Tezos (_ : CRYPTO) : S with type version = tezos_version
+module Bitcoin (_ : CRYPTO) : S with type version = bitcoin_version
+module Komodo (_ : CRYPTO) : S with type version = komodo_version
 module Set : Set.S with type elt := t
 module Map : Map.S with type key := t

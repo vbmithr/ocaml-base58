@@ -19,7 +19,7 @@ let test_btc () =
   assert_equal addr_encoded addr_bytes_decoded;
   assert_equal '\x6f' (String.get addr_bytes 0);
   let ({ Bitcoin.version; payload } as versioned) = Bitcoin.of_string_exn addr in
-  assert_equal Bitcoin.Testnet_P2PKH version;
+  assert_equal Testnet_P2PKH version;
   assert_equal 20 (String.length payload);
   let addr_versioned_str = Bitcoin.to_string versioned in
   assert_equal addr addr_versioned_str

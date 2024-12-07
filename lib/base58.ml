@@ -162,6 +162,41 @@ let chars_of_string str =
   List.rev !chars
 ;;
 
+module type S = sig
+  type version
+
+  type t = private
+    { version : version
+    ; payload : string
+    }
+
+  val compare : t -> t -> int
+  val equal : t -> t -> bool
+  val ( = ) : t -> t -> bool
+  val create : version:version -> payload:string -> t
+  val pp : Format.formatter -> t -> unit
+  val show : t -> string
+  val of_base58 : base58 -> t option
+  val of_base58_exn : base58 -> t
+  val to_base58 : t -> base58
+  val of_string : string -> t option
+  val of_string_exn : string -> t
+  val to_string : t -> string
+
+  module Set : Set.S with type elt := t
+  module Map : Map.S with type key := t
+end
+
+type tezos_version =
+  | Block
+  | Operation
+  | Protocol
+  | Address
+  | Peer
+  | Public_key
+  | Secret_key
+  | Signature
+
 module Tezos (C : CRYPTO) = struct
   open Checksummed (C)
 
@@ -183,15 +218,7 @@ module Tezos (C : CRYPTO) = struct
   let ed25519_secret_key = "\043\246\078\007" (* edsk(98) *)
   let ed25519_signature = "\009\245\205\134\018" (* edsig(99) *)
 
-  type version =
-    | Block
-    | Operation
-    | Protocol
-    | Address
-    | Peer
-    | Public_key
-    | Secret_key
-    | Signature
+  type version = tezos_version
 
   type t =
     { version : version
@@ -294,22 +321,22 @@ module Tezos (C : CRYPTO) = struct
     end)
 end
 
+type bitcoin_version =
+  | P2PKH
+  | P2SH
+  | Namecoin_P2PKH
+  | Privkey
+  | BIP32_priv
+  | BIP32_pub
+  | Testnet_P2PKH
+  | Testnet_P2SH
+  | Testnet_privkey
+  | Testnet_BIP32_priv
+  | Testnet_BIP32_pub
+  | Unknown of string
+
 module Bitcoin (C : CRYPTO) = struct
   open Checksummed (C)
-
-  type version =
-    | P2PKH
-    | P2SH
-    | Namecoin_P2PKH
-    | Privkey
-    | BIP32_priv
-    | BIP32_pub
-    | Testnet_P2PKH
-    | Testnet_P2SH
-    | Testnet_privkey
-    | Testnet_BIP32_priv
-    | Testnet_BIP32_pub
-    | Unknown of string
 
   let string_of_version = function
     | P2PKH -> "\000"
@@ -343,6 +370,8 @@ module Bitcoin (C : CRYPTO) = struct
       Testnet_BIP32_pub, String.sub s 4 (len - 4)
     | _ -> invalid_arg "Base58.Bitcoin.t_of_bytes: unknown version"
   ;;
+
+  type version = bitcoin_version
 
   type t =
     { version : version
@@ -399,13 +428,13 @@ module Bitcoin (C : CRYPTO) = struct
     end)
 end
 
+type komodo_version =
+  | P2PKH
+  | P2SH
+  | WIF
+
 module Komodo (C : CRYPTO) = struct
   open Checksummed (C)
-
-  type version =
-    | P2PKH
-    | P2SH
-    | WIF
 
   let string_of_version = function
     | P2PKH -> "\060"
@@ -421,6 +450,8 @@ module Komodo (C : CRYPTO) = struct
     | '\128' :: _ -> WIF, String.sub s 1 (len - 1)
     | _ -> invalid_arg "Komodo.version_of_string_exn"
   ;;
+
+  type version = komodo_version
 
   type t =
     { version : version
