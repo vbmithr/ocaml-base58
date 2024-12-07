@@ -30,9 +30,9 @@ let test_tezos () =
   let open Chk in
   let module Tezos = Tezos (Crypto) in
   let addr = "tz1e5dbxuQ1VBCTvr7DUdahymepWcmFjZcoF" in
-  let addr_bytes = to_bytes_exn (`Base58 addr) in
+  let addr_bytes = to_bytes_exn (B58 addr) in
   let addr' = of_bytes addr_bytes in
-  assert_equal (`Base58 addr) addr';
+  assert_equal (B58 addr) addr';
   let tezos_addr = Tezos.of_base58_exn addr' in
   let tezos_addr' = Tezos.to_string tezos_addr in
   assert_equal tezos_addr' addr;

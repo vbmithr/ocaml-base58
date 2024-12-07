@@ -108,14 +108,14 @@ let raw_decode ?(alphabet = Alphabet.default) s =
   String.make zeros '\000' ^ String.init len (fun i -> String.get res (len - i - 1))
 ;;
 
-type t = [ `Base58 of string ]
+type t = B58 of string
 type base58 = t
 
-let compare (`Base58 t) (`Base58 t') = String.compare t t'
-let equal (`Base58 t) (`Base58 t') = String.equal t t'
+let compare (B58 t) (B58 t') = String.compare t t'
+let equal (B58 t) (B58 t') = String.equal t t'
 let ( = ) = equal
-let pp ppf (`Base58 b58) = Format.pp_print_string ppf b58
-let to_string (`Base58 b58) = b58
+let pp ppf (B58 b58) = Format.pp_print_string ppf b58
+let to_string (B58 b58) = b58
 let show = to_string
 
 module Checksummed (C : CRYPTO) = struct
@@ -127,9 +127,9 @@ module Checksummed (C : CRYPTO) = struct
   ;;
 
   (* Append a 4-bytes cryptographic checksum before encoding string s *)
-  let of_bytes ?alphabet s = `Base58 (raw_encode ?alphabet (s ^ checksum s))
+  let of_bytes ?alphabet s = B58 (raw_encode ?alphabet (s ^ checksum s))
 
-  let to_bytes ?alphabet (`Base58 s) =
+  let to_bytes ?alphabet (B58 s) =
     let s = raw_decode ?alphabet s in
     let len = String.length s in
     let msg = String.sub s 0 (len - 4) in
@@ -144,15 +144,15 @@ module Checksummed (C : CRYPTO) = struct
   ;;
 
   let of_string ?alphabet str =
-    match to_bytes ?alphabet (`Base58 str) with
+    match to_bytes ?alphabet (B58 str) with
     | None -> None
-    | Some _ -> Some (`Base58 str)
+    | Some _ -> Some (B58 str)
   ;;
 
   let of_string_exn ?alphabet str =
-    match to_bytes ?alphabet (`Base58 str) with
+    match to_bytes ?alphabet (B58 str) with
     | None -> invalid_arg "Base58.of_string_exn"
-    | Some _ -> `Base58 str
+    | Some _ -> B58 str
   ;;
 end
 

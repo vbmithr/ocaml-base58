@@ -22,7 +22,7 @@ module Alphabet : sig
   val default : t
 end
 
-type t = [ `Base58 of string ]
+type t = B58 of string
 
 (** Type of Base58Check encoded data. *)
 type base58 = t
