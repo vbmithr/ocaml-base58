@@ -23,6 +23,7 @@
    ocaml
    dune
    zarith
+   ppx_compare
   (alcotest :with-test)
   (digestif :with-test)
  )

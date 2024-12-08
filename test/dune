@@ -1,6 +1,7 @@
 (test
  (name test)
  (libraries
+   fmt
    digestif.c
    base58
    alcotest))

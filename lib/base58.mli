@@ -90,37 +90,58 @@ module type S = sig
   module Map : Map.S with type key := t
 end
 
-type tezos_version =
-  | Block
-  | Operation
-  | Protocol
-  | Address
-  | Peer
-  | Public_key
-  | Secret_key
-  | Signature
+module Tezos : sig
+  module Version : sig
+    type t =
+      | Block
+      | Operation
+      | Protocol
+      | Address
+      | Peer
+      | Public_key
+      | Secret_key
+      | Signature
 
-type bitcoin_version =
-  | P2PKH
-  | P2SH
-  | Namecoin_P2PKH
-  | Privkey
-  | BIP32_priv
-  | BIP32_pub
-  | Testnet_P2PKH
-  | Testnet_P2SH
-  | Testnet_privkey
-  | Testnet_BIP32_priv
-  | Testnet_BIP32_pub
-  | Unknown of string
+    val to_raw_bytes : t -> string
+  end
 
-type komodo_version =
-  | P2PKH
-  | P2SH
-  | WIF
+  module Make (_ : CRYPTO) : S with type version = Version.t
+end
 
-module Tezos (_ : CRYPTO) : S with type version = tezos_version
-module Bitcoin (_ : CRYPTO) : S with type version = bitcoin_version
-module Komodo (_ : CRYPTO) : S with type version = komodo_version
+module Bitcoin : sig
+  module Version : sig
+    type t =
+      | P2PKH
+      | P2SH
+      | Namecoin_P2PKH
+      | Privkey
+      | BIP32_priv
+      | BIP32_pub
+      | Testnet_P2PKH
+      | Testnet_P2SH
+      | Testnet_privkey
+      | Testnet_BIP32_priv
+      | Testnet_BIP32_pub
+    [@@deriving equal, compare]
+
+    val to_raw_bytes : t -> string
+  end
+
+  module Make (_ : CRYPTO) : S with type version = Version.t
+end
+
+module Komodo : sig
+  module Version : sig
+    type t =
+      | P2PKH
+      | P2SH
+      | WIF
+
+    val to_raw_bytes : t -> string
+  end
+
+  module Make (_ : CRYPTO) : S with type version = Version.t
+end
+
 module Set : Set.S with type elt := t
 module Map : Map.S with type key := t

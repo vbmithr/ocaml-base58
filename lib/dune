@@ -1,5 +1,4 @@
 (library
- (name        base58)
  (public_name base58)
- (modules base58)
+ (preprocess (pps ppx_compare))
  (libraries zarith))

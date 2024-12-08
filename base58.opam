@@ -13,6 +13,7 @@ depends: [
   "ocaml"
   "dune" {>= "3.16"}
   "zarith"
+  "ppx_compare"
   "alcotest" {with-test}
   "digestif" {with-test}
   "odoc" {with-doc}
