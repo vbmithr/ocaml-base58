@@ -12,6 +12,9 @@ bug-reports: "https://github.com/vbmithr/ocaml-base58/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.16"}
+  "zarith"
+  "alcotest" {with-test}
+  "digestif" {with-test}
   "odoc" {with-doc}
 ]
 build: [

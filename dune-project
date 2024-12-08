@@ -19,5 +19,11 @@
  (name base58)
  (synopsis "Base58 binary encoding")
  (description "")
- (depends ocaml dune)
+ (depends
+   ocaml
+   dune
+   zarith
+  (alcotest :with-test)
+  (digestif :with-test)
+ )
  (tags (base58 crypto bitcoin)))

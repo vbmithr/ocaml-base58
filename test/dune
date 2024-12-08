@@ -1,3 +1,6 @@
 (test
  (name test)
- (libraries digestif.c base58 alcotest))
+ (libraries
+   digestif.c
+   base58
+   alcotest))
